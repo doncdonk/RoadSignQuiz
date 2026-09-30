@@ -105,6 +105,12 @@ h1{font-size:1.35rem;margin:0;letter-spacing:.02em}
 .choice.img{flex-direction:column;align-items:center;padding:10px;position:relative}
 .choice.img .k{position:absolute;top:8px;left:8px}
 .choice.img svg{width:100%;max-width:150px;height:auto;display:block}
+.namecard.fake{border-top-color:var(--ng)}
+.namecard .sub{margin:4px 0 0;color:var(--muted);font-size:.92rem}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.compare figure{margin:0;text-align:center}
+.compare svg{width:100%;max-width:120px;height:auto}
+.compare figcaption{font-size:.82rem;color:var(--muted);line-height:1.4}
 .back{font:inherit;font-size:.95rem;color:var(--blue);background:none;border:none;cursor:pointer;padding:4px 0}
 .back:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
 .filters{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 12px}
@@ -463,6 +469,39 @@ const DUP = (() => { const m = {}; SIGNS.forEach(s => m[s.n] = (m[s.n]||0) + 1);
 const dispName = s => DUP[s.n] > 1 ? `${s.n}（${catLabel(s.c)}）` : s.n;
 const noLabel = s => s.law ? s.no : s.c === "道路標示" ? `（標示${s.no}）` : `（${s.no}）`;
 
+/* ================= 偽標識 =================
+   base: 似せた本物の標識名 / why: どこが本物と違うか */
+const GREEN_IN = "#2E8B57";
+const FAKES = [
+  {base:"一時停止", why:"「止まれ」の逆三角形は赤地に白文字。青地の「止まれ」は存在しない。", s:`<polygon points="6,22 194,22 100,188" fill="${WHT}" ${EDGE}/><polygon points="17,29 183,29 100,175" fill="${BLUE}"/>`+txt("止まれ",100,95,44,WHT)+txt("STOP",100,128,22,WHT,400)},
+  {base:"一時停止", why:"「止まれ」は頂点が下を向いた逆三角形。上向きの三角形ではない。", s:`<polygon points="100,12 194,178 6,178" fill="${WHT}" ${EDGE}/><polygon points="100,25 183,171 17,171" fill="${RED}"/>`+txt("止まれ",100,138,40,WHT)+txt("STOP",100,162,18,WHT,400)},
+  {base:"徐行", why:"「徐行」は赤い逆三角形の規制標識。黄色のひし形（警戒標識）の「徐行」は存在しない。", s:warn(txt("徐行",100,116,50,BLK))},
+  {base:"駐車禁止", why:"駐車禁止の斜線は左上から右下へ引く。右上から左下への斜線は逆向き。", s:blueRing(`<line x1="154" y1="46" x2="46" y2="154" stroke="${RED}" stroke-width="15"/>`)},
+  {base:"駐車禁止", why:"駐車禁止の内側は青。緑の内側の標識は存在しない（白なら車両通行止め）。", s:`<circle cx="100" cy="100" r="97" fill="${WHT}" ${EDGE}/><circle cx="100" cy="100" r="92" fill="${RED}"/><circle cx="100" cy="100" r="74" fill="${GREEN_IN}"/><line x1="46" y1="46" x2="154" y2="154" stroke="${RED}" stroke-width="15"/>`},
+  {base:"車両進入禁止", why:"車両進入禁止は赤地に白の横棒。青地に白の横棒は存在しない。", s:blueDisc(`<rect x="34" y="86" width="132" height="28" fill="${WHT}"/>`)},
+  {base:"車両進入禁止", why:"車両進入禁止の白い棒は横向き。縦向きの棒ではない。", s:`<circle cx="100" cy="100" r="97" fill="${WHT}" ${EDGE}/><circle cx="100" cy="100" r="91" fill="${RED}"/><rect x="86" y="34" width="28" height="132" fill="${WHT}"/>`},
+  {base:"最高速度", why:"最高速度の数字は青。赤い数字ではない。", s:ringSign(txt("50",100,128,82,RED))},
+  {base:"最低速度", why:"最低速度は青地に白い数字で、数字の下に白い線が入る。線のない青地の数字は存在しない。", s:blueDisc(txt("30",100,128,82,WHT))},
+  {base:"最低速度", why:"最低速度の数字の下線は白。赤い下線ではない。", s:blueDisc(txt("30",100,118,78,WHT)+`<rect x="55" y="132" width="90" height="9" fill="${RED}"/>`)},
+  {base:"一方通行", why:"一方通行は青地に白い矢印。赤地の一方通行は存在しない。", s:`<rect x="6" y="56" width="188" height="88" rx="8" fill="${WHT}" ${EDGE}/><rect x="12" y="62" width="176" height="76" rx="5" fill="${RED}"/><polygon points="28,88 128,88 128,72 172,100 128,128 128,112 28,112" fill="${WHT}"/>`},
+  {base:"一方通行", why:"一方通行の矢印は片側だけ。両向きの矢印では一方通行にならない。", s:`<rect x="6" y="56" width="188" height="88" rx="8" fill="${WHT}" ${EDGE}/><rect x="12" y="62" width="176" height="76" rx="5" fill="${BLUE}"/><polygon points="28,100 64,72 64,88 136,88 136,72 172,100 136,128 136,112 64,112 64,128" fill="${WHT}"/>`},
+  {base:"左折可（標示板）", why:"左折可は白地に青い矢印と青い縁。赤い矢印の左折可は存在しない。", s:`<rect x="6" y="56" width="188" height="88" rx="6" fill="${WHT}" stroke="${RED}" stroke-width="8"/><polygon points="172,88 72,88 72,72 28,100 72,128 72,112 172,112" fill="${RED}"/>`},
+  {base:"転回禁止", why:"転回禁止にはUターン矢印の上に赤い斜線が入る。斜線のない「転回可」の標識は存在しない。", s:ringSign(`<path d="M78,150 V88 a22,22 0 0 1 44,0 V118" fill="none" stroke="${BLUE}" stroke-width="14"/><polygon points="104,114 140,114 122,146" fill="${BLUE}"/>`)},
+  {base:"優先道路", why:"優先道路は青地に白い図形。赤地の優先道路は存在しない。", s:`<rect x="6" y="6" width="188" height="188" rx="14" fill="${WHT}" ${EDGE}/><rect x="13" y="13" width="174" height="174" rx="9" fill="${RED}"/><rect x="82" y="34" width="36" height="132" fill="${WHT}"/><rect x="40" y="92" width="120" height="16" fill="${WHT}"/>`},
+  {base:"横断歩道", why:"横断歩道の標識は青地の五角形。黄色地の横断歩道標識は存在しない。", s:`<polygon points="100,3 182,143 182,196 18,196 18,143" fill="${WHT}" ${EDGE}/><polygon points="100,13 175,145 175,189 25,189 25,145" fill="${YEL}"/><polygon points="100,34 164,168 36,168" fill="${WHT}"/>`+walker(BLK,100,116,.7)+[50,72,94,116,138].map(x=>`<rect x="${x}" y="148" width="12" height="12" fill="${BLK}"/>`).join("")},
+  {base:"信号機あり", why:"警戒標識は黄色地のひし形。青地のひし形の標識は存在しない。", s:`<polygon points="100,4 196,100 100,196 4,100" fill="${WHT}" ${EDGE}/><polygon points="100,11 189,100 100,189 11,100" fill="${BLUE}"/><rect x="58" y="80" width="84" height="40" rx="10" fill="${WHT}"/><circle cx="78" cy="100" r="11" fill="#1FA37A"/><circle cx="100" cy="100" r="11" fill="#F7D100"/><circle cx="122" cy="100" r="11" fill="#E53935"/>`},
+  {base:"＋形道路交差点あり", why:"警戒標識の記号は黒。赤い十字は使われない。", s:warn(`<rect x="91" y="44" width="18" height="112" fill="${RED}"/><rect x="44" y="91" width="112" height="18" fill="${RED}"/>`)},
+  {base:"その他の危険", why:"その他の危険は「！」。「？」の標識は存在しない。", s:warn(txt("?",100,142,110,BLK))},
+  {base:"幅員減少", why:"幅員減少は黄色のひし形の警戒標識。赤い輪の規制標識の形では存在しない。", s:ringSign(`<polyline points="66,160 66,118 86,92 86,42" fill="none" stroke="${BLUE}" stroke-width="10"/><polyline points="134,160 134,118 114,92 114,42" fill="none" stroke="${BLUE}" stroke-width="10"/>`)},
+  {base:"重量制限", why:"重量制限の単位はt（トン）。「m」では高さや幅の制限の単位になってしまう。", s:ringSign(txt("5.5m",100,116,44,BLUE))},
+  {base:"駐車可", why:"駐車可は青地に白い「P」。赤地の「P」は存在しない。", s:`<rect x="6" y="6" width="188" height="188" rx="14" fill="${WHT}" ${EDGE}/><rect x="13" y="13" width="174" height="174" rx="9" fill="${RED}"/>`+txt("P",100,142,120,WHT)},
+  {base:"停車可", why:"停車可の文字は「停」。「止」の標識は存在しない。", s:blueSq(txt("止",100,138,100,WHT))},
+  {base:"通行止め", why:"通行止めの×印と文字は赤い×に青い文字。青い×印ではない。", s:ringSign(`<line x1="50" y1="50" x2="150" y2="150" stroke="${BLUE}" stroke-width="12"/><line x1="150" y1="50" x2="50" y2="150" stroke="${BLUE}" stroke-width="12"/>`+txt("通行止",100,166,22,RED))},
+  {base:"歩行者等通行止め", why:"歩行者等通行止めには赤い斜線が入る。斜線のない人物だけの規制標識は存在しない。", s:ringSign(walker(BLUE,98,108,1.05))},
+  {base:"指定方向外進行禁止（直進のみ）", why:"指定方向外進行禁止は青地に白い矢印。赤地の矢印標識は存在しない。", s:`<circle cx="100" cy="100" r="97" fill="${WHT}" ${EDGE}/><circle cx="100" cy="100" r="91" fill="${RED}"/>`+upArrow(WHT)},
+  {base:"踏切あり", why:"踏切ありは黄色のひし形。丸い形の踏切標識は存在しない。", s:`<circle cx="100" cy="100" r="97" fill="${WHT}" ${EDGE}/><circle cx="100" cy="100" r="91" fill="${YEL}"/><circle cx="100" cy="100" r="80" fill="none" stroke="${BLK}" stroke-width="5"/><rect x="52" y="80" width="96" height="50" rx="6" fill="${BLK}"/>${[60,86,112].map(x=>`<rect x="${x}" y="88" width="20" height="16" rx="2" fill="${YEL}"/>`).join("")}<circle cx="70" cy="136" r="7" fill="${BLK}"/><circle cx="130" cy="136" r="7" fill="${BLK}"/>`},
+].map(f => ({...f, fake:true, n:"偽物"}));
+
 /* ================= クイズ本体 ================= */
 const app = document.getElementById("app");
 let qCount = 10, range = "all", qType = "mix", order = [], idx = 0, score = 0, misses = [], answered = false;
@@ -481,7 +520,24 @@ function makeChoices(sign){
   return shuffle([sign, ...picks]);
 }
 
+function makeFakeQ(f){
+  const base = SIGNS.find(s => s.n === f.base);
+  f.real = base;
+  const ok = s => s !== base && grp(s) !== grp(base);
+  const same = shuffle(SIGNS.filter(s => ok(s) && s.c === base.c));
+  const other = shuffle(SIGNS.filter(s => ok(s) && s.c !== base.c));
+  // 本物の元標識を並べる回と並べない回を混ぜる
+  const reals = Math.random() < .6 ? [base] : [];
+  while (reals.length < 3) reals.push(same.length ? same.shift() : other.shift());
+  return {sign:f, choices:shuffle([f, ...reals]), t:"fake"};
+}
+
 function start(){
+  if (qType === "fake") {
+    order = shuffle(FAKES).slice(0, Math.min(qCount, FAKES.length)).map(makeFakeQ);
+    idx = 0; score = 0; misses = [];
+    renderQuestion(); return;
+  }
   const p = pool();
   order = shuffle(p).slice(0, Math.min(qCount, p.length)).map(s => ({
     sign:s, choices:makeChoices(s),
@@ -497,6 +553,15 @@ function renderQuestion(){
   const head = `
     <header><h1>道路標識クイズ</h1><div class="progress">${idx+1} / ${order.length}問　正解 ${score}</div></header>
     <div class="bar"><span style="width:${idx/order.length*100}%"></span></div>`;
+  if (t === "fake") {
+    app.innerHTML = head + `
+      <div class="namecard fake"><p class="bigname">偽標識を探せ</p><p class="sub">1つだけ、実在しない偽物の標識が混ざっています。</p></div>
+      <p class="q">偽物はどれ？</p>
+      <div class="imgchoices">${choices.map((c,i)=>`<button class="choice img" data-i="${i}" aria-label="選択肢${i+1}"><span class="k">${i+1}</span>${svg(c.s)}</button>`).join("")}</div>
+      <div id="fb"></div>`;
+    app.querySelectorAll(".choice").forEach(b => b.addEventListener("click", () => answer(+b.dataset.i)));
+    return;
+  }
   const badge = `${catLabel(sign.c)}${sign.r?'<span class="badge">レア</span>':""}`;
   if (t === "img") {
     app.innerHTML = head + `
@@ -526,6 +591,19 @@ function answer(i){
     else if (j === i) b.classList.add("wrong");
   });
   const last = idx === order.length - 1;
+  if (t === "fake") {
+    const real = sign.real;
+    const pickedReal = !ok ? `<p>選んだ標識は本物の「${dispName(choices[i])}」${noLabel(choices[i])}です。</p>` : "";
+    document.getElementById("fb").innerHTML = `
+      <div class="feedback ${ok?"ok":"ng"}"><strong>${ok?"正解！見破りました":"不正解"}　偽物は${choices.indexOf(sign)+1}番</strong>
+        <div class="compare"><figure>${svg(sign.s)}<figcaption>偽物</figcaption></figure><figure>${svg(real.s)}<figcaption>本物：${dispName(real)}</figcaption></figure></div>
+        <p><b>見分けるポイント：</b>${sign.why}</p>${pickedReal}${srcHTML(real)}</div>
+      <button class="btn" id="next">${last?"結果を見る":"次の問題へ"}</button>`;
+    const nb = document.getElementById("next");
+    nb.addEventListener("click", () => { if (last) renderResult(); else { idx++; renderQuestion(); window.scrollTo(0,0); } });
+    nb.focus({preventScroll:true});
+    return;
+  }
   const pickedNote = (!ok && t === "img") ? `<p>選んだ標識は「${dispName(choices[i])}」${noLabel(choices[i])}です。</p>` : "";
   document.getElementById("fb").innerHTML = `
     <div class="feedback ${ok?"ok":"ng"}"><strong>${ok?"正解！":"不正解"}　${dispName(sign)}</strong><p>${sign.d}</p>${pickedNote}${srcHTML(sign)}</div>
@@ -545,7 +623,8 @@ function renderResult(){
     <header><h1>道路標識クイズ</h1><div class="progress">結果</div></header>
     <div class="bar"><span style="width:100%"></span></div>
     <div class="result"><p class="score">${score}<small> / ${order.length}問正解</small></p><p class="msg">${msg}</p></div>
-    ${misses.length ? `<div class="review"><h2>間違えた標識</h2>${misses.map(m=>`
+    ${misses.length ? `<div class="review"><h2>間違えた標識</h2>${misses.map(m=> m.t === "fake" ? `
+      <div class="miss">${svg(m.sign.s)}<div><b>偽物（本物は「${dispName(m.sign.real)}」）</b><span>あなたの回答：本物の「${dispName(m.picked)}」</span><br><span>${m.sign.why}</span></div></div>` : `
       <div class="miss">${svg(m.sign.s)}<div><b>${m.sign.n}${noLabel(m.sign)}</b><span>あなたの回答：${dispName(m.picked)}${m.t==="img"?"（の標識）":""}</span><br><span>${m.sign.d}</span></div></div>`).join("")}</div>` : ""}
     <button class="btn" id="again">同じ設定でもう一度</button>
     <button class="btn sub" id="home">設定を変える</button>`;
@@ -557,7 +636,7 @@ function renderResult(){
 function renderStart(){
   const nBasic = SIGNS.filter(s=>!s.r).length, nRare = SIGNS.length - nBasic;
   const counts = [5,10,20,30,50];
-  const types = [["name","標識 → 名称を選ぶ"],["img","名称 → 標識を選ぶ"],["mix","ミックス"]];
+  const types = [["name","標識 → 名称を選ぶ"],["img","名称 → 標識を選ぶ"],["mix","ミックス"],["fake","偽標識を探せ"]];
   app.innerHTML = `
     <header><h1>道路標識クイズ</h1></header>
     <div class="post">${svg(SIGNS.find(s=>s.no==="327の10").s)}<div class="pole"></div></div>
@@ -578,8 +657,13 @@ function renderStart(){
     <button class="btn" id="go">スタート</button>
     <button class="btn sub" id="list">出題する標識の一覧を見る</button>
     <p class="note">標識と道路標示の種類・名称・意味は「${LAW}」に基づいています（令和5年改正後の名称）。「左折可」は道路交通法施行規則による標示板です。図柄はブラウザ上で描いた簡略図で、案内標識・補助標識の地名や文字は表示例です。正確な様式は<a href="${MLIT_URL}" target="_blank" rel="noopener">国土交通省の道路標識一覧</a>で確認してください。</p>`;
-  const note = () => { const n = Math.min(qCount, pool().length); document.getElementById("cntNote").textContent = `今回は${n}問出題します`; };
-  document.getElementById("typ").addEventListener("change", e => { qType = e.target.value; });
+  const note = () => {
+    const fake = qType === "fake";
+    const n = Math.min(qCount, fake ? FAKES.length : pool().length);
+    document.getElementById("cntNote").textContent = fake ? `今回は${n}問出題します（偽標識は全${FAKES.length}種、出題範囲の設定は使いません）` : `今回は${n}問出題します`;
+    document.getElementById("rng").disabled = fake;
+  };
+  document.getElementById("typ").addEventListener("change", e => { qType = e.target.value; note(); });
   document.getElementById("rng").addEventListener("change", e => { range = e.target.value; note(); });
   document.getElementById("cnt").addEventListener("change", e => { qCount = +e.target.value; note(); });
   document.getElementById("go").addEventListener("click", start);
