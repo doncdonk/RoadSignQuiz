@@ -195,6 +195,24 @@ const phone = c => `<path d="M58,96 Q100,62 142,96 L142,108 L124,108 L124,98 Q10
 const toilet = c => `<circle cx="74" cy="66" r="11" fill="${c}"/><rect x="62" y="82" width="24" height="46" rx="4" fill="${c}"/><rect x="64" y="126" width="8" height="30" fill="${c}"/><rect x="76" y="126" width="8" height="30" fill="${c}"/><rect x="98" y="54" width="4" height="104" fill="${c}"/><circle cx="126" cy="66" r="11" fill="${c}"/><polygon points="126,80 146,130 106,130" fill="${c}"/><rect x="116" y="128" width="8" height="28" fill="${c}"/><rect x="128" y="128" width="8" height="28" fill="${c}"/>`;
 const wheelchair = c => `<circle cx="92" cy="60" r="10" fill="${c}"/><polyline points="90,74 90,108 122,108 132,134" fill="none" stroke="${c}" stroke-width="8" stroke-linejoin="round"/><circle cx="92" cy="122" r="22" fill="none" stroke="${c}" stroke-width="6"/>`;
 
+const pent = inner => `<polygon points="100,3 182,143 182,196 18,196 18,143" fill="${WHT}" ${EDGE}/><polygon points="100,13 175,145 175,189 25,189 25,145" fill="${BLUE}"/>${inner}`;
+const hU = (x,y,c=WHT) => `<polygon points="${x},${y} ${x-20},${y+28} ${x+20},${y+28}" fill="${c}"/>`;
+const hL = (x,y,c=WHT) => `<polygon points="${x},${y} ${x+28},${y-20} ${x+28},${y+20}" fill="${c}"/>`;
+const hR = (x,y,c=WHT) => `<polygon points="${x},${y} ${x-28},${y-20} ${x-28},${y+20}" fill="${c}"/>`;
+const pth = (d,c=WHT,w=16) => `<path d="${d}" fill="none" stroke="${c}" stroke-width="${w}"/>`;
+// 道路標示（上から見た路面）
+const MY = "#F2B705", MW = "#F4F4F4";
+const road = inner => `<rect x="6" y="6" width="188" height="188" rx="14" fill="#55595D" ${EDGE}/>${inner}`;
+const edgeL = `<rect x="20" y="6" width="5" height="188" fill="${MW}"/>`, edgeR = `<rect x="175" y="6" width="5" height="188" fill="${MW}"/>`;
+const dash = (x,c=MW,w=5) => `<line x1="${x}" y1="6" x2="${x}" y2="194" stroke="${c}" stroke-width="${w}" stroke-dasharray="22 16"/>`;
+const solid = (x,c=MW,w=5) => `<rect x="${x-w/2}" y="6" width="${w}" height="188" fill="${c}"/>`;
+const walk = `<rect x="6" y="6" width="36" height="188" rx="10" fill="#9EA3A7"/>`;
+const rArr = (x,y,deg=-90,c=MW) => arr(c,x,y,56,deg,9);
+const tanuki = c => `<ellipse cx="96" cy="112" rx="34" ry="22" fill="${c}"/><circle cx="130" cy="92" r="16" fill="${c}"/><circle cx="124" cy="76" r="6" fill="${c}"/><circle cx="138" cy="76" r="6" fill="${c}"/><path d="M62,106 Q40,96 44,124 Q52,124 64,116 Z" fill="${c}"/><g stroke="${c}" stroke-width="7" stroke-linecap="round"><line x1="76" y1="128" x2="72" y2="146"/><line x1="112" y1="128" x2="116" y2="146"/></g>`;
+const rabbit = c => `<ellipse cx="94" cy="118" rx="32" ry="22" fill="${c}"/><circle cx="126" cy="98" r="14" fill="${c}"/><ellipse cx="124" cy="68" rx="6" ry="20" fill="${c}"/><ellipse cx="136" cy="70" rx="6" ry="20" fill="${c}" transform="rotate(15 136 70)"/><circle cx="62" cy="112" r="8" fill="${c}"/><ellipse cx="80" cy="140" rx="18" ry="6" fill="${c}"/>`;
+const monkey = c => `<circle cx="100" cy="66" r="14" fill="${c}"/><ellipse cx="100" cy="106" rx="20" ry="28" fill="${c}"/><g stroke="${c}" stroke-width="8" stroke-linecap="round" fill="none"><line x1="84" y1="96" x2="70" y2="120"/><line x1="116" y1="96" x2="130" y2="120"/><line x1="90" y1="130" x2="82" y2="152"/><line x1="110" y1="130" x2="118" y2="152"/><path d="M118,122 Q150,128 140,96" /></g>`;
+const sl = c => `<rect x="54" y="90" width="64" height="36" rx="4" fill="${c}"/><rect x="104" y="72" width="40" height="54" fill="${c}"/><rect x="66" y="74" width="12" height="18" fill="${c}"/><rect x="46" y="118" width="104" height="8" fill="${c}"/><circle cx="72" cy="136" r="10" fill="${c}"/><circle cx="100" cy="136" r="10" fill="${c}"/><circle cx="128" cy="136" r="10" fill="${c}"/><line x1="40" y1="150" x2="160" y2="150" stroke="${c}" stroke-width="5"/>`;
+
 /* ================= 標識データ =================
    no: 標識令 別表の番号 / n: 名称 / c: 分類 / r: レア / d: 意味（別表第一「表示する意味」を要約） */
 const SIGNS = [
@@ -207,7 +225,7 @@ const SIGNS = [
   {no:"306", n:"大型乗用自動車等通行止め", c:"規制", r:1, d:"大型乗用自動車と特定中型乗用自動車（大型・中型のバスなど）は通行できない。", s:ringSign(bus(BLUE,WHT))},
   {no:"307", n:"二輪の自動車・一般原動機付自転車通行止め", c:"規制", r:1, d:"大型・普通自動二輪車と一般原動機付自転車は通行できない。", s:ringSign(moto(BLUE))},
   {no:"309", n:"特定小型原動機付自転車・自転車通行止め", c:"規制", r:1, d:"特定小型原動機付自転車（電動キックボード等）と自転車は通行できない。", s:ringSign(bike(BLUE))},
-  {no:"311-A", n:"指定方向外進行禁止", c:"規制", d:"矢印の方向以外へは進行できない（この図は直進のみ可）。", s:blueDisc(upArrow(WHT))},
+  {no:"311-A", n:"指定方向外進行禁止（直進のみ）", c:"規制", d:"矢印の方向以外へは進行できない。この図は直進のみ可で、右折・左折はできない。", s:blueDisc(upArrow(WHT))},
   {no:"312", n:"車両横断禁止", c:"規制", r:1, d:"車両は道路の右側にある施設などに入るための右折を伴う横断をしてはいけない。", s:ringSign(`<path d="M84,152 V100 Q84,88 96,88 H118" fill="none" stroke="${BLUE}" stroke-width="14"/><polygon points="114,70 146,88 114,106" fill="${BLUE}"/>`+slash)},
   {no:"313", n:"転回禁止", c:"規制", d:"車両は転回（Uターン）してはいけない。", s:ringSign(`<path d="M78,150 V88 a22,22 0 0 1 44,0 V118" fill="none" stroke="${BLUE}" stroke-width="14"/><polygon points="104,114 140,114 122,146" fill="${BLUE}"/>`+slash)},
   {no:"315", n:"駐停車禁止", c:"規制", d:"車両は駐車も停車もしてはいけない。", s:blueRing(`<line x1="46" y1="46" x2="154" y2="154" stroke="${RED}" stroke-width="15"/><line x1="154" y1="46" x2="46" y2="154" stroke="${RED}" stroke-width="15"/>`)},
@@ -239,8 +257,8 @@ const SIGNS = [
   {no:"404", n:"停車可", c:"指示", d:"車両が停車できる場所であることを示す。", s:blueSq(txt("停",100,138,100,WHT))},
   {no:"405", n:"優先道路", c:"指示", d:"走行中の道路が優先道路であることを示す。交差する道路の車両は進行を妨げてはいけない。", s:blueSq(`<rect x="82" y="34" width="36" height="132" fill="${WHT}"/><rect x="40" y="92" width="120" height="16" fill="${WHT}"/>`)},
   {no:"406の2", n:"停止線", c:"指示", r:1, d:"車両が停止する場合に停止すべき位置を示す。", s:blueSq(txt("停止線",100,100,46,WHT)+`<rect x="40" y="124" width="120" height="14" fill="${WHT}"/>`)},
-  {no:"407-A", n:"横断歩道", c:"指示", d:"横断歩道であることを示す。歩行者がいるときは一時停止して道を譲る。", s:blueSq(`<polygon points="100,28 174,160 26,160" fill="${WHT}"/><g fill="${BLK}"><rect x="52" y="140" width="14" height="14"/><rect x="74" y="140" width="14" height="14"/><rect x="96" y="140" width="14" height="14"/><rect x="118" y="140" width="14" height="14"/><rect x="140" y="140" width="10" height="14"/></g>`+walker(BLK,100,106,.85))},
-  {no:"407の2", n:"自転車横断帯", c:"指示", r:1, d:"自転車横断帯であることを示す。", s:blueSq(sc(bike(WHT),20,-8,.8)+[36,62,88,114,140].map(x=>`<rect x="${x}" y="146" width="20" height="16" fill="${WHT}"/>`).join(""))},
+  {no:"407-A", n:"横断歩道", c:"指示", d:"横断歩道であることを示す（一般用）。歩行者がいるときは一時停止して道を譲る。横断歩道の標識は五角形。", s:pent(`<polygon points="100,34 164,168 36,168" fill="${WHT}"/>`+walker(BLK,100,116,.7)+[50,72,94,116,138].map(x=>`<rect x="${x}" y="148" width="12" height="12" fill="${BLK}"/>`).join(""))},
+  {no:"407の2", n:"自転車横断帯", c:"指示", r:1, d:"自転車横断帯であることを示す。", s:pent(sc(bike(WHT),28,20,.72)+[40,64,88,112,136].map(x=>`<rect x="${x}" y="160" width="16" height="14" fill="${WHT}"/>`).join(""))},
   // ---- 警戒標識 ----
   {no:"201-A", n:"＋形道路交差点あり", c:"警戒", d:"この先に十字形の交差点がある。", s:warn(`<rect x="91" y="44" width="18" height="112" fill="${BLK}"/><rect x="44" y="91" width="112" height="18" fill="${BLK}"/>`)},
   {no:"201-B", n:"┣形（又は┫形）道路交差点あり", c:"警戒", r:1, d:"この先に┣形（又は┫形）の交差点がある。", s:warn(`<rect x="91" y="44" width="18" height="112" fill="${BLK}"/><rect x="100" y="91" width="56" height="18" fill="${BLK}"/>`)},
@@ -301,7 +319,7 @@ const SIGNS = [
   {no:"402の2", n:"高齢運転者等標章自動車駐車可", c:"指示", r:1, d:"高齢運転者等標章を掲示した自動車は駐車できる。", s:blueSq(txt("P",100,120,96,WHT)+txt("標章車",100,166,26,WHT))},
   {no:"403の2", n:"高齢運転者等標章自動車停車可", c:"指示", r:1, d:"高齢運転者等標章を掲示した自動車は停車できる。", s:blueSq(txt("停",100,118,86,WHT)+txt("標章車",100,166,26,WHT))},
   {no:"406", n:"中央線", c:"指示", r:1, d:"道路の中央線（センターライン）の位置を示す。積雪地などで設置される。", s:blueSq(`<rect x="94" y="24" width="12" height="152" fill="${WHT}"/><line x1="40" y1="24" x2="40" y2="176" stroke="${WHT}" stroke-width="4"/><line x1="160" y1="24" x2="160" y2="176" stroke="${WHT}" stroke-width="4"/>`)},
-  {no:"407の3", n:"横断歩道・自転車横断帯", c:"指示", r:1, d:"横断歩道と自転車横断帯が併設されていることを示す。", s:blueSq(walker(WHT,64,96,.75)+sc(bike(WHT),72,32,.55)+[30,56,82,108,134,160].map(x=>`<rect x="${x-8}" y="148" width="16" height="16" fill="${WHT}"/>`).join(""))},
+  {no:"407の3", n:"横断歩道・自転車横断帯", c:"指示", r:1, d:"横断歩道と自転車横断帯が併設されていることを示す。", s:pent(walker(WHT,72,122,.62)+sc(bike(WHT),74,66,.48)+[46,70,94,118,142].map(x=>`<rect x="${x}" y="162" width="14" height="14" fill="${WHT}"/>`).join(""))},
   {no:"408", n:"安全地帯", c:"指示", r:1, d:"安全地帯（路面電車の停留場などの歩行者用の島状の施設）であることを示す。車両は入ってはいけない。", s:blueSq(`<polygon points="100,34 170,160 30,160" fill="${YEL}" stroke="${WHT}" stroke-width="6"/>`)},
   {no:"409", n:"規制予告", c:"指示", r:1, d:"この先で表示された交通規制が行われることを予告する。", s:board(BLUE,176,sc(ringSign(txt("通行止",100,114,40,BLUE)),52,20,.48)+txt("この先100m",100,164,28,WHT))},
 
@@ -373,21 +391,77 @@ const SIGNS = [
   {no:"513", n:"始点", c:"補助", r:1, d:"案内・警戒標識の対象となる区間の始点であることを示す。", s:aux(txt("始点",100,114,38,BLK))},
   {no:"514", n:"終点", c:"補助", r:1, d:"案内・警戒標識の対象となる区間の終点であることを示す。", s:aux(txt("終点",100,114,38,BLK))},
 
+  // ---- 同じ番号の別図柄（バリエーション） ----
+  {no:"311-B", n:"指定方向外進行禁止（左折のみ）", c:"規制", d:"矢印の方向以外へは進行できない。この図は左折のみ可。", s:blueDisc(pth("M112,166 V102 Q112,86 96,86 H72")+hL(40,86))},
+  {no:"311-C", n:"指定方向外進行禁止（右折のみ）", c:"規制", d:"矢印の方向以外へは進行できない。この図は右折のみ可。", s:blueDisc(pth("M88,166 V102 Q88,86 104,86 H128")+hR(160,86))},
+  {no:"311-D", n:"指定方向外進行禁止（直進・左折のみ）", c:"規制", d:"矢印の方向以外へは進行できない。この図は直進と左折のみ可で、右折はできない。", s:blueDisc(pth("M114,166 V66")+hU(114,36)+pth("M114,128 Q114,112 98,112 H74")+hL(44,112))},
+  {no:"311-E", n:"指定方向外進行禁止（直進・右折のみ）", c:"規制", d:"矢印の方向以外へは進行できない。この図は直進と右折のみ可で、左折はできない。", s:blueDisc(pth("M86,166 V66")+hU(86,36)+pth("M86,128 Q86,112 102,112 H126")+hR(156,112))},
+  {no:"311-F", n:"指定方向外進行禁止（左折・右折のみ）", c:"規制", d:"矢印の方向以外へは進行できない。この図は左折と右折のみ可で、直進はできない。", s:blueDisc(pth("M100,166 V100")+pth("M100,102 Q100,88 86,88 H64")+hL(34,88)+pth("M100,102 Q100,88 114,88 H136")+hR(166,88))},
+  {no:"326-B", n:"一方通行（縦長の様式）", c:"規制", r:1, d:"車両は矢印と反対の方向へ進行してはいけない。326-Aと意味は同じで、縦長の板に上向きの矢印を描いた様式。", s:`<rect x="52" y="6" width="96" height="188" rx="8" fill="${WHT}" ${EDGE}/><rect x="58" y="12" width="84" height="176" rx="5" fill="${BLUE}"/><polygon points="88,172 112,172 112,72 128,72 100,28 72,72 88,72" fill="${WHT}"/>`},
+  {no:"329-B", n:"徐行（英語表記なし）", c:"規制", d:"すぐに停止できる速度で進まなければならない。2017年より前の英語表記なしの様式で、現在も多く残っている。", s:tri(txt("徐行",100,108,58,WHT))},
+  {no:"330-B", n:"一時停止（英語表記なし）", c:"規制", d:"一時停止しなければならない。2017年より前の英語表記なしの様式で、現在も多く残っている。", s:tri(txt("止まれ",100,104,50,WHT))},
+  {no:"332-B", n:"歩行者等横断禁止（わたるな）", c:"規制", r:1, d:"歩行者等は道路を横断してはいけない。子どもにも分かるよう「わたるな」と表記した様式。", s:ringSign(walker(BLUE,98,94,.8)+txt("わたるな",100,162,18,BLUE)+slash)},
+  {no:"407-B", n:"横断歩道（学童用）", c:"指示", r:1, d:"横断歩道であることを示す（学童用）。幼稚園や小学校などの近くの横断歩道に設置される。", s:pent(`<polygon points="100,34 164,168 36,168" fill="${WHT}"/>`+walker(BLK,88,124,.56)+walker(BLK,116,128,.5)+[50,72,94,116,138].map(x=>`<rect x="${x}" y="150" width="12" height="12" fill="${BLK}"/>`).join(""))},
+  {no:"201-B", n:"┫形道路交差点あり", c:"警戒", r:1, d:"この先に┫形の交差点がある（┣形と同じ番号の左右反転版）。", s:warn(`<rect x="91" y="44" width="18" height="112" fill="${BLK}"/><rect x="44" y="91" width="56" height="18" fill="${BLK}"/>`)},
+  {no:"202", n:"左方屈曲あり", c:"警戒", d:"この先で道路が左へゆるやかに曲がっている（右（又は左）方屈曲ありの左向き）。", s:warn(`<path d="M116,160 V112 Q116,82 84,70" fill="none" stroke="${BLK}" stroke-width="16"/><polygon points="66,62 79,84 90,56" fill="${BLK}"/>`)},
+  {no:"203", n:"左方屈折あり", c:"警戒", d:"この先で道路が左へ直角に近い角度で曲がっている（右（又は左）方屈折ありの左向き）。", s:warn(`<polyline points="118,158 118,98 82,98" fill="none" stroke="${BLK}" stroke-width="17"/><polygon points="84,76 50,98 84,120" fill="${BLK}"/>`)},
+  {no:"204", n:"左方背向屈曲あり", c:"警戒", r:1, d:"この先で道路が左へ曲がり、続いて右へ曲がる（左向きのS字カーブ）。", s:warn(`<path d="M116,162 C116,136 82,130 82,106 C82,84 114,82 114,66" fill="none" stroke="${BLK}" stroke-width="15"/><polygon points="96,70 132,70 114,42" fill="${BLK}"/>`)},
+  {no:"205", n:"左方背向屈折あり", c:"警戒", r:1, d:"この先で道路が左へ直角に近く曲がり、続いて右へ曲がる（左向きのクランク）。", s:warn(`<polyline points="118,162 118,122 82,122 82,74" fill="none" stroke="${BLK}" stroke-width="15"/><polygon points="64,78 100,78 82,48" fill="${BLK}"/>`)},
+  {no:"206", n:"左つづら折りあり", c:"警戒", r:1, d:"この先に左から始まるつづら折りがある。", s:warn(`<path d="M116,166 C116,144 80,148 80,128 C80,108 118,114 118,94 C118,76 90,80 88,68" fill="none" stroke="${BLK}" stroke-width="12"/><polygon points="72,70 104,70 86,44" fill="${BLK}"/>`)},
+  {no:"207-A", n:"踏切あり（蒸気機関車の様式）", c:"警戒", r:1, d:"この先に踏切がある。1986年に電車の様式（207-B）が追加される前からの蒸気機関車の図柄で、現在も一部に残る。", s:warn(sl(BLK))},
+  {no:"214の2-B", n:"動物が飛び出すおそれあり（タヌキ）", c:"警戒", r:1, d:"この先で動物（タヌキ）が飛び出すおそれがある。", s:warn(tanuki(BLK))},
+  {no:"214の2-C", n:"動物が飛び出すおそれあり（ウサギ）", c:"警戒", r:1, d:"この先で動物（ウサギ）が飛び出すおそれがある。", s:warn(rabbit(BLK))},
+  {no:"214の2-D", n:"動物が飛び出すおそれあり（サル）", c:"警戒", r:1, d:"この先で動物（サル）が飛び出すおそれがある。", s:warn(monkey(BLK))},
+
+  // ---- 道路標示（路面に描かれたもの） ----
+  {no:"101", n:"転回禁止（道路標示）", c:"道路標示", d:"車両は転回（Uターン）してはいけない。黄色のUターン矢印に×印。", s:road(pth("M80,160 V92 a20,20 0 0 1 40,0 V122",MY,12)+`<polygon points="104,118 136,118 120,148" fill="${MY}"/>`+`<line x1="60" y1="60" x2="140" y2="150" stroke="${MY}" stroke-width="9"/><line x1="140" y1="60" x2="60" y2="150" stroke="${MY}" stroke-width="9"/>`)},
+  {no:"102", n:"追越しのための右側部分はみ出し通行禁止（道路標示）", c:"道路標示", d:"黄色の中央線。追越しのために右側部分へはみ出して通行してはいけない。", s:road(edgeL+edgeR+solid(100,MY,8)+rArr(60,170)+rArr(140,30,90))},
+  {no:"102の2", n:"進路変更禁止", c:"道路標示", r:1, d:"同じ方向の車線の間の黄色の線。黄色の線を越えて進路を変えてはいけない。", s:road(edgeL+edgeR+solid(100,MY,8)+rArr(60,170)+rArr(140,170))},
+  {no:"103", n:"駐停車禁止（道路標示）", c:"道路標示", r:1, d:"路端の黄色の実線。車両は駐車も停車もしてはいけない。", s:road(walk+solid(52,MY,7)+rArr(120,170))},
+  {no:"104", n:"駐車禁止（道路標示）", c:"道路標示", r:1, d:"路端の黄色の破線。車両は駐車してはいけない（停車はできる）。", s:road(walk+dash(52,MY,7)+rArr(120,170))},
+  {no:"105", n:"最高速度（道路標示）", c:"道路標示", d:"路面に描かれた数字の速度（この図では時速40km）を超えて走行してはいけない。", s:road(`<text x="100" y="72" font-size="56" fill="${MY}" font-weight="700" text-anchor="middle" transform="scale(1 2.2)" font-family="BIZ UDPGothic, sans-serif">40</text>`)},
+  {no:"106", n:"立入り禁止部分", c:"道路標示", r:1, d:"黄色で囲まれ斜線が引かれた部分。車両は入ってはいけない。", s:road(`<polygon points="100,24 140,70 140,176 60,176 60,70" fill="none" stroke="${MY}" stroke-width="6"/>`+[60,82,104,126,148].map(y=>`<line x1="62" y1="${y+20}" x2="138" y2="${y-20}" stroke="${MY}" stroke-width="5"/>`).join(""))},
+  {no:"107", n:"停止禁止部分", c:"道路標示", r:1, d:"四角の枠に×印が描かれた部分。車両はこの部分で停止してはいけない（消防署の前など）。", s:road(`<rect x="30" y="50" width="140" height="100" fill="none" stroke="${MW}" stroke-width="6"/><line x1="30" y1="50" x2="170" y2="150" stroke="${MW}" stroke-width="6"/><line x1="170" y1="50" x2="30" y2="150" stroke="${MW}" stroke-width="6"/>`)},
+  {no:"108", n:"路側帯", c:"道路標示", d:"白の実線1本で区切られた路端の部分。歩行者と軽車両が通行でき、幅が広ければ駐停車もできる。", s:road(solid(52,MW,6)+rArr(120,170))},
+  {no:"108の2", n:"駐停車禁止路側帯", c:"道路標示", r:1, d:"白の実線と破線の2本線の路側帯。車両は中に入って駐停車してはいけない。", s:road(solid(40,MW,6)+dash(56,MW,6)+rArr(124,170))},
+  {no:"108の3", n:"歩行者用路側帯", c:"道路標示", r:1, d:"白の実線2本の路側帯。歩行者だけが通行でき、軽車両は通行できない。車両は駐停車もできない。", s:road(solid(40,MW,6)+solid(56,MW,6)+rArr(124,170))},
+  {no:"109の6", n:"専用通行帯（道路標示）", c:"道路標示", r:1, d:"車線に書かれた「専用」の文字。表示された車両（この図では路線バス等）の専用通行帯。", s:road(edgeL+solid(100,MW,5)+["バ","ス","専","用"].map((ch,i)=>txt(ch,60,56+i*34,30,MW)).join("")+rArr(140,170))},
+  {no:"109の7", n:"路線バス等優先通行帯（道路標示）", c:"道路標示", r:1, d:"車線に書かれた「優先」の文字。路線バス等の優先通行帯で、他の車両はバスが近づいたら出なければならない。", s:road(edgeL+solid(100,MW,5)+["バ","ス","優","先"].map((ch,i)=>txt(ch,60,56+i*34,30,MW)).join("")+rArr(140,170))},
+  {no:"110", n:"進行方向別通行区分（道路標示）", c:"道路標示", r:1, d:"車線ごとに描かれた白い矢印。交差点で矢印の方向へしか進めない。", s:road(solid(72,MW,5)+solid(128,MW,5)+pth("M44,170 V120 Q44,104 30,104",MW,8)+hL(20,104,MW)+pth("M100,170 V80",MW,8)+hU(100,56,MW)+pth("M156,170 V120 Q156,104 170,104",MW,8)+hR(180,104,MW))},
+  {no:"112", n:"平行駐車（道路標示）", c:"道路標示", r:1, d:"道路の側端に対して平行に駐車しなければならない場所を示す白線。", s:road(walk+[20,80,140].map(y=>`<rect x="46" y="${y}" width="40" height="56" fill="none" stroke="${MW}" stroke-width="4"/>`).join("")+rArr(136,170))},
+  {no:"113", n:"直角駐車（道路標示）", c:"道路標示", r:1, d:"道路の側端に対して直角に駐車しなければならない場所を示す白線。", s:road(walk+[20,56,92,128,164].map(y=>`<line x1="42" y1="${y}" x2="110" y2="${y}" stroke="${MW}" stroke-width="4"/>`).join("")+rArr(150,170))},
+  {no:"114", n:"斜め駐車（道路標示）", c:"道路標示", r:1, d:"道路の側端に対して斜めに駐車しなければならない場所を示す白線。", s:road(walk+[40,76,112,148,184].map(y=>`<line x1="42" y1="${y}" x2="104" y2="${y-40}" stroke="${MW}" stroke-width="4"/>`).join("")+rArr(150,170))},
+  {no:"114の2", n:"普通自転車の歩道通行部分", c:"道路標示", r:1, d:"歩道のうち普通自転車が通行すべき部分を示す（白い自転車マーク）。", s:`<rect x="6" y="6" width="188" height="188" rx="14" fill="#B4A89A" ${EDGE}/>`+solid(100,MW,5)+sc(bike(MW),100,40,.5)+sc(walker(MW,0,0,1),50,100,.8)},
+  {no:"201", n:"横断歩道（道路標示）", c:"道路標示", d:"白いしま模様（ゼブラ）。横断歩道であることを示す。", s:road([22,50,78,106,134,162].map(x=>`<rect x="${x}" y="50" width="16" height="100" fill="${MW}"/>`).join(""))},
+  {no:"202", n:"右側通行", c:"道路標示", r:1, d:"車両が道路の右側部分を通行できることを示す白い矢印。", s:road(dash(100,MW,5)+pth("M60,176 V132 Q60,100 104,86 Q140,74 140,54",MW,9)+hU(140,24,MW))},
+  {no:"203", n:"停止線（道路標示）", c:"道路標示", d:"車両が停止する場合の位置を示す白い太線。", s:road(edgeL+`<rect x="22" y="92" width="156" height="18" fill="${MW}"/>`+rArr(100,176))},
+  {no:"203の2", n:"二段停止線", c:"道路標示", r:1, d:"二輪車と四輪車の停止位置を分けた2本の停止線。前の線に「二輪」と表示され、二輪車はその前の線で止まる。", s:road(edgeL+`<rect x="22" y="56" width="156" height="14" fill="${MW}"/><rect x="22" y="128" width="156" height="14" fill="${MW}"/>`+txt("二輪",100,110,28,MW)+rArr(100,190))},
+  {no:"204", n:"進行方向", c:"道路標示", d:"交差点で進むことができる方向を示す白い矢印（この図は直進と左折）。", s:road(edgeL+edgeR+pth("M110,176 V68",MW,9)+hU(110,40,MW)+pth("M110,130 Q110,110 90,110 H72",MW,9)+hL(46,110,MW))},
+  {no:"205", n:"中央線（道路標示）", c:"道路標示", d:"道路の中央を示す白い線。", s:road(edgeL+edgeR+dash(100,MW,7)+rArr(60,170)+rArr(140,30,90))},
+  {no:"206", n:"車線境界線", c:"道路標示", d:"同じ方向の車線の境目を示す白い破線。", s:road(edgeL+edgeR+dash(100,MW,5)+rArr(60,170)+rArr(140,170))},
+  {no:"207", n:"安全地帯（道路標示）", c:"道路標示", r:1, d:"白線で囲まれ斜線が引かれた部分。安全地帯であり、車両は入ってはいけない。", s:road(`<rect x="70" y="24" width="60" height="152" fill="none" stroke="${MW}" stroke-width="6"/>`+[44,72,100,128,156].map(y=>`<line x1="72" y1="${y+16}" x2="128" y2="${y-16}" stroke="${MW}" stroke-width="5"/>`).join(""))},
+  {no:"208", n:"安全地帯又は路上障害物に接近", c:"道路標示", r:1, d:"この先に安全地帯や路上障害物があることを示す、斜めに絞られた白線。", s:road(`<polyline points="100,20 70,110 70,180" fill="none" stroke="${MW}" stroke-width="6"/><polyline points="100,20 130,110 130,180" fill="none" stroke="${MW}" stroke-width="6"/>`+[70,94,118,142,166].map(y=>`<line x1="${72}" y1="${y+10}" x2="128" y2="${y-10}" stroke="${MW}" stroke-width="4"/>`).join(""))},
+  {no:"210", n:"横断歩道又は自転車横断帯あり", c:"道路標示", d:"路面の白いひし形マーク。この先に横断歩道か自転車横断帯がある。", s:road(edgeL+edgeR+dash(100,MW,5)+`<polygon points="60,40 76,90 60,140 44,90" fill="none" stroke="${MW}" stroke-width="6"/><polygon points="140,40 156,90 140,140 124,90" fill="none" stroke="${MW}" stroke-width="6"/>`)},
+  {no:"211", n:"前方優先道路（道路標示）", c:"道路標示", r:1, d:"路面の白い逆三角形マーク。この先で交差する道路が優先道路であることを示す。", s:road(edgeL+edgeR+`<polygon points="62,60 138,60 100,150" fill="none" stroke="${MW}" stroke-width="7"/>`)},
+
   // ---- 標示板（標識令ではなく道路交通法施行規則による） ----
   {no:"施行規則第3条", n:"左折可（標示板）", c:"標示板", r:1, law:"道路交通法施行規則（昭和35年総理府令第60号）第3条・別記様式第一", ref:["警察庁「交通規制基準」","https://www.npa.go.jp/bureau/traffic/seibi2/kisei/mokuteki/kiseikijun/260316kiseikijun.pdf"], d:"前方の信号が赤や黄であっても、周囲に注意して左折できる（常時左折可）。一方通行の標識と配色が逆なので要注意。", s:`<rect x="6" y="56" width="188" height="88" rx="6" fill="${WHT}" stroke="${BLUE}" stroke-width="8"/><polygon points="172,88 72,88 72,72 28,100 72,128 72,112 172,112" fill="${BLUE}"/>`},
 ];
 
 const LAW = "道路標識、区画線及び道路標示に関する命令（昭和35年総理府・建設省令第3号）別表第一・別表第二";
+const MARK_URL = "https://www.kictec.co.jp/varieties-road-mark-cat/road-mark-example/";
 const MLIT_URL = "https://www.mlit.go.jp/road/sign/sign/douro/ichiran.pdf";
-const CATS = ["規制","指示","警戒","案内","補助","標示板"];
-const catLabel = c => c === "標示板" ? "標示板" : c + "標識";
+const CATS = ["規制","指示","警戒","案内","補助","道路標示","標示板"];
+const catLabel = c => (c === "標示板" || c === "道路標示") ? c : c + "標識";
 const srcHTML = s => s.law
   ? `<div class="src"><b>出典</b>　${s.law}「${s.n.replace("（標示板）","")}」<br>※道路標識令の標識ではなく、施行規則に基づく標示板です。<br>参照：<a href="${s.ref[1]}" target="_blank" rel="noopener">${s.ref[0]}</a></div>`
+  : s.c === "道路標示"
+  ? `<div class="src"><b>出典</b>　${LAW.replace("別表第一・別表第二","別表第五・別表第六")}　${s.no.startsWith("1")?"規制標示":"指示標示"}（${s.no}）「${s.n.replace("（道路標示）","")}」<br>参照：<a href="${MARK_URL}" target="_blank" rel="noopener">キクテック「路面標示のいろいろ」（標示の番号と名称の一覧）</a></div>`
   : `<div class="src"><b>出典</b>　${LAW}　${catLabel(s.c)}（${s.no}）「${s.n}」<br>
   参照：<a href="${MLIT_URL}" target="_blank" rel="noopener">国土交通省 道路局「道路標識一覧」</a></div>`;
 const DUP = (() => { const m = {}; SIGNS.forEach(s => m[s.n] = (m[s.n]||0) + 1); return m; })();
 const dispName = s => DUP[s.n] > 1 ? `${s.n}（${catLabel(s.c)}）` : s.n;
-const noLabel = s => s.law ? s.no : `（${s.no}）`;
+const noLabel = s => s.law ? s.no : s.c === "道路標示" ? `（標示${s.no}）` : `（${s.no}）`;
 
 /* ================= クイズ本体 ================= */
 const app = document.getElementById("app");
@@ -396,9 +470,12 @@ let qCount = 10, range = "all", qType = "mix", order = [], idx = 0, score = 0, m
 const shuffle = a => { a = a.slice(); for (let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
 const pool = () => range === "basic" ? SIGNS.filter(s=>!s.r) : range === "rare" ? SIGNS.filter(s=>s.r) : SIGNS;
 
+const grp = s => s.c + ":" + s.no.replace(/-[A-Z]$/, "");
 function makeChoices(sign){
-  const same = shuffle(SIGNS.filter(s => s !== sign && s.c === sign.c));
-  const other = shuffle(SIGNS.filter(s => s !== sign && s.c !== sign.c));
+  // 同じ番号の別図柄（左右反転など）は紛らわしすぎるので選択肢から外す
+  const ok = s => s !== sign && grp(s) !== grp(sign);
+  const same = shuffle(SIGNS.filter(s => ok(s) && s.c === sign.c));
+  const other = shuffle(SIGNS.filter(s => ok(s) && s.c !== sign.c));
   const picks = same.slice(0, 3);
   while (picks.length < 3) picks.push(other.shift());
   return shuffle([sign, ...picks]);
@@ -500,7 +577,7 @@ function renderStart(){
     <p class="count" id="cntNote"></p>
     <button class="btn" id="go">スタート</button>
     <button class="btn sub" id="list">出題する標識の一覧を見る</button>
-    <p class="note">規制・指示・警戒・案内・補助標識の種類・名称・意味は「${LAW}」に基づいています（令和5年改正後の名称）。「左折可」は道路交通法施行規則による標示板です。図柄はブラウザ上で描いた簡略図で、案内標識・補助標識の地名や文字は表示例です。正確な様式は<a href="${MLIT_URL}" target="_blank" rel="noopener">国土交通省の道路標識一覧</a>で確認してください。</p>`;
+    <p class="note">標識と道路標示の種類・名称・意味は「${LAW}」に基づいています（令和5年改正後の名称）。「左折可」は道路交通法施行規則による標示板です。図柄はブラウザ上で描いた簡略図で、案内標識・補助標識の地名や文字は表示例です。正確な様式は<a href="${MLIT_URL}" target="_blank" rel="noopener">国土交通省の道路標識一覧</a>で確認してください。</p>`;
   const note = () => { const n = Math.min(qCount, pool().length); document.getElementById("cntNote").textContent = `今回は${n}問出題します`; };
   document.getElementById("typ").addEventListener("change", e => { qType = e.target.value; });
   document.getElementById("rng").addEventListener("change", e => { range = e.target.value; note(); });
@@ -517,7 +594,7 @@ function renderList(){
   const rares = [["all","基本＋レア"],["basic","基本のみ"],["rare","レアのみ"]];
   app.innerHTML = `
     <header><h1>標識一覧</h1><button class="back" id="back">← トップへ戻る</button></header>
-    <input class="search" id="q" type="search" placeholder="名称や番号で探す（例：駐車、327）" value="${listQuery}" aria-label="標識を検索">
+    <input class="search" id="q" type="search" placeholder="名称や番号で探す（例：駐車、327、路側帯）" value="${listQuery}" aria-label="標識を検索">
     <div class="filters" role="group" aria-label="分類">${cats.map(([v,l])=>`<button class="chip" data-cat="${v}" aria-pressed="${listCat===v}">${l}</button>`).join("")}</div>
     <div class="filters" role="group" aria-label="レア度">${rares.map(([v,l])=>`<button class="chip" data-rare="${v}" aria-pressed="${listRare===v}">${l}</button>`).join("")}</div>
     <div class="list" id="listBody"></div>
